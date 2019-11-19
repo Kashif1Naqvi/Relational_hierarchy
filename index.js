@@ -58,12 +58,11 @@ function colors(){
   d3.json("data.json").then(d=>{
 
     let data =  d.map(d=>parseInt(d.close))
+    let date =  d.map(d=>new Date(d.date))
 
     const db  = d3.pie().sort(null).value(d=>d)(data);
 
     const segment1 = d3.arc().innerRadius(21).outerRadius(315).padAngle(20).padRadius(20);
-
-
 
     let seg = svg.append("g").attr("transform","translate(999,700)").attr("class","node")
      let graph =seg.append("g").attr("transform","translate(510,-250)").attr("class","pie")
@@ -80,11 +79,13 @@ function colors(){
                     return colors(i)
                   })
 
-
-
                   let yScale = d3.scaleLinear().domain([0,d3.max(data)]).range([height,0])
                   let xScale = d3.scaleBand().domain(data).range([0,width]);
                   let yAxis = d3.axisLeft(yScale).ticks(5)
+                  let xValues = d3.scaleTime()
+                                  .domain([date[0],date[(date.length - 1)]])
+                                  .range([0,width])
+                  let xAxis   = d3.axisBottom(xValues).ticks(d3.timeDay.every(1))
 
 let code = svg.append("g").attr("transform","translate(70,110)").attr("class","db")
                      code.selectAll("rect").attr("class","barchart").data(data).enter().append("rect")
@@ -106,5 +107,7 @@ let code = svg.append("g").attr("transform","translate(70,110)").attr("class","d
 
                     d3.select(".svg-container svg").append("g").attr("transform","translate(61,110)")
                                     .call(yAxis)
+                    d3.select(".svg-container svg").append("g").attr("transform",`translate(61,${height}+50)`)
+                    .call(xAxis)
 
   })
