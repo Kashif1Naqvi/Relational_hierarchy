@@ -53,10 +53,7 @@ function colors(){
 //   d3.select(".svg-container svg").append("g").attr("transform","translate(61,110)")
 //                   .call(yAxis)
 
-
-
   d3.json("data.json").then(d=>{
-
     let data =  d.map(d=>parseInt(d.close))
     let date =  d.map(d=>new Date(d.date))
     date.sort((a,b)=> new Date(a.date) - new Date(b.date))    
@@ -81,7 +78,6 @@ function colors(){
                   .transition()
                   .duration(400)
                   .delay(400);
-
                   let yScale = d3.scaleLinear().domain([0,d3.max(data)]).range([height,0])
                   let xScale = d3.scaleBand().domain(data).range([0,width]);
                   let yAxis = d3.axisLeft(yScale).ticks(5)
@@ -89,31 +85,61 @@ function colors(){
                   let xAxis = d3.axisBottom(xValues).ticks(25)
 
 let code = svg.append("g").attr("transform","translate(70,110)").attr("class","db")
-                     code.selectAll("rect").attr("class","barchart").data(data).enter().append("rect")
+                     code.selectAll("rect")
+                         .attr("class","barchart")
+                         .data(data).enter()
+                         .append("rect")
+                        
                      .attr("height",function(d,i){
                       return yScale(d);
                      })
-                     .attr("width",10)
-                     .attr("x",302)
-                     .attr("y",-910)
+                     .attr("width",0)
+                     .attr("x",function(d,i){
+                       if(i < 500){
+                         return 200
+                       }else{
+                        return -1200
+                       }
+                     })
+                     .attr("y",function(d,i){
+                      if(i <= 200){
+                        return 200
+                      }else if(i <= 400 && i >= 200 ){
+                       return -400
+                      }
+                      else if(i <= 600 && i >= 400 ){
+                        return 400
+                      }
+                      else if(i <= 800 && i >= 600 ){
+                        return 600
+                     }
+                     else if(i <= 1000 && i >= 800 ){
+                      return -600
+                     }
+                     else if(i >=1000 ){
+                      return -1000;
+                     }
+                    })
                      .attr("fill",function(d,i){
                        return color(i)
                       })
                     .transition()
-                    .attr("y",function(d,i){
-                      return  height -  yScale(d)
-                     })
-                   .attr("x",function(d,i){
-                    return xScale(d)
-                  })
-                  .attr("width",function(d,i){
-                    return xScale.bandwidth();
-                  })
-                  .duration((d,i)=>d*2)
-                  .delay((d,i)=>d*20)
-                    d3.select(".svg-container svg").append("g").attr("transform","translate(61,110)")
+                        .attr("y",function(d,i){
+                          return  height -  yScale(d)
+                        })
+                      .attr("x",function(d,i){
+                        return xScale(d)
+                      })
+                      .attr("width",function(d,i){
+                        return xScale.bandwidth();
+                       })
+                      .duration(d=>d*20)
+                      .delay((d,i)=>i*20)
+code.attr("mouseover",function(d,i,n){
+  d3.select(n[i]).transition("changeSliceFill").duration(400).attr("fill","white")  
+})
+                      d3.select(".svg-container svg").append("g").attr("transform","translate(61,110)")
                       .call(yAxis)
-                    
                     d3.select(".svg-container svg").append("g").attr("transform",`translate(60,619)`)
                     .call(xAxis)
 })
