@@ -1,10 +1,10 @@
 // const arr =[11,22,12,44,45,66,77,99,110,130,150,170,200,230,250,270,290,300,350,380,400,430,450,500,510,530,550,590,620,640,660,700];
-
 let height = 500;
 let width = 1000;
 let barwidth = 50;
 let offset = 5;
-const svg = d3.select("body").append("div").classed("svg-container", true).attr("preserveAspectRatio", "xMinYMin meet")
+const svg = d3.select("body").append("div").classed("svg-container", true)
+              .attr("preserveAspectRatio", "xMinYMin meet")
               .attr("viewBox", "0 0 600 400")
               .append("svg")
               .attr("class","svg-content-responsive")
@@ -32,11 +32,9 @@ let colors = d3.scaleOrdinal(d3['schemeSet3'])
 let myCol = d3.scaleDiverging(d3.interpolateSpectral);
 let tooltips = d3.select("body").append("div").attr("class","tootips");
 
-
 // let yScale = d3.scaleLinear().domain([0,d3.max(arr)]).range([height,0])
 // let xScale = d3.scaleBand().domain(arr).range([0,width]);
 // let yAxis = d3.axisLeft(yScale).ticks(5)
-//
 // let graph = svg.append("g").attr("transform",'translate(70,110)')
 //    graph.selectAll("rect").attr("class","barchart").data(arr).enter().append("rect")
 //    .attr("height",function(d,i){
@@ -63,16 +61,21 @@ let tooltips = d3.select("body").append("div").attr("class","tootips");
     colors.domain(data)
     date.sort((a,b)=> new Date(a.date) - new Date(b.date))
     const db  = d3.pie().sort(null).value(d=>d)(data);
-    const segment1 = d3.arc().innerRadius(181).outerRadius(315).padAngle(10).padRadius(2);
-    const segment2 = d3.arc().innerRadius(281).outerRadius(515).padAngle(10).padRadius(2);
+    const segment1 = d3.arc().innerRadius(90).outerRadius(157).padAngle(10).padRadius(2);
+    const segment2 = d3.arc().innerRadius(40).outerRadius(89).padAngle(10).padRadius(2);
     let seg = svg.append("g").attr("transform","translate(999,700)").attr("class","node")
-    let graph =  seg.append("g").attr("transform","translate(-444,290)").attr("class","pie")
+    let graph =   seg.append("g").attr("transform","translate(-444,290)").attr("class","pie")
                   graph.selectAll("path").data(db).enter().append("path")
                   .attr("d",segment1)
                   .attr("fill",(d,i)=>{
                     return color(i)
                   })
-.on("mouseover",function(d,i,n){
+                  .on("mouseover",function(d,i,n){
+  d3.select(this)
+    .attr("stroke","inherit")
+    .attr("d", segment2)
+    .attr("stroke-width",19);
+                    // graph.selectAll("path").attr("d",segment2)
                     tooltips.html("<p>The value of this bar is::"+data[i]+"</p>")
                             .style("top",function(d,i){
                               return d3.event.pageY - 105 + "px"
@@ -86,19 +89,52 @@ let tooltips = d3.select("body").append("div").attr("class","tootips");
                             .style("opacity",.9)
                   })
                   .on("mouseout",function(d,i,n){
+                    graph.selectAll("path").attr("d",segment1)
                     tooltips.html("")
                   })
                   .attr("fill",function(d,i){
-                    return colors(i)
+                    return color(i)
                   })
-
                   .transition()
                   .duration( (d,i) => i*10)
                   .delay(    (d,i) => i*5)
                   .attr("fill",function(d,i){
-                    return color(i)
+                    return colors(i)
                   })
+const newGraph  =  seg.append("g").attr("transform","translate(-444,290)").attr("class","newPie")
+                      newGraph.selectAll("path").data(db).enter().append("path")
+                      .attr("d",segment2)
+                      .attr("fill",(d,i)=>{
+                          return colors(i)
+                      })
+.on("mouseover",function(d,i,n){
+                                  // graph.selectAll("path").attr("d",segment2)
+          tooltips.html("<p>The value of this bar is::"+data[i]+"</p>")
+                  .style("top",function(d,i){
+                    return d3.event.pageY - 105 + "px"
+                  })
+                  .style("left",function(d,i){
+                    return d3.event.pageX - 30 + "px"
+                  })
+                  .transition()
+                  .duration(i*30)
+                  .delay(i * 20)
+                  .style("opacity",.9)
+        })
+        .on("mouseout",function(d,i,n){
 
+          tooltips.html("")
+        })
+        .attr("fill",function(d,i){
+          return colors(i)
+        })
+
+        .transition()
+        .duration( (d,i) => i*10)
+        .delay(    (d,i) => i*5)
+        .attr("fill",function(d,i){
+          return color(i)
+      })
 graph.selectAll("text").data(data).enter().append("text")
      .attr("x",1500)
      .attr("y",1000)
@@ -136,8 +172,6 @@ let code = svg.append("g").attr("transform","translate(70,110)").style("class","
                                    .attr("fill",function(d,i){
                                      return color(i)
                                    })
-
-
                      })
                      .on("mouseout",function(d,i,n){
                            tooltips.html("<p style='display:none;' ></p>")
@@ -263,15 +297,14 @@ let code = svg.append("g").attr("transform","translate(70,110)").style("class","
                     .call(xAxis);
 
 const areaGroup = code.append("g").attr("transform","translate(0,1300)").attr("class","group")
-const yScaleA = d3.scaleLinear().domain([0, d3.max(data)]).range([height,0])
-const xScaleA = d3.scaleBand().domain(data).range([0,width]);
-const  area = d3.area().x(
+const yScaleA   = d3.scaleLinear().domain([0, d3.max(data)]).range([height,0])
+const xScaleA   = d3.scaleBand().domain(data).range([0,width]);
+const  area     = d3.area().x(
                 function(d,i){
                   return xScaleA((data[i]))
                 })
                 .y0(height)
                 .y1(function(d,i){return yScaleA(d);});
-
                 areaGroup.append("path").attr("d",area(data)).attr("fill",function(d,i){
                   return "none"
                 }).style("stroke",(d,i)=>color(i)).style("stroke-width",4);
@@ -280,7 +313,6 @@ const  area = d3.area().x(
                 d3.select(".svg-container svg").append("g").attr("transform",`translate(67,1914)`)
                 .call(xAxis);
 })
-
 // just a simple logic browser relod every 30 seconds
 // setTimeout(function() {
 //   location.reload();
